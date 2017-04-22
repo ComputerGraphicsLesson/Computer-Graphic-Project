@@ -4,8 +4,8 @@
 
 void do_movement();
 
-GLfloat deltaTime = 0.0f;
-GLfloat lastFrame = 0.0f;
+double deltaTime = 0.0f;
+double lastFrame = 0.0f;
 
 int main() {
     glfwInit();
@@ -87,7 +87,7 @@ int main() {
     vec3 lightPos = vec3(0, 70, 0);
     // Game loop
     while (!glfwWindowShouldClose(window)) {
-        GLfloat currentFrame = glfwGetTime();
+        double currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
@@ -107,10 +107,12 @@ int main() {
         GLint objectColorLoc = glGetUniformLocation(objShader.Program, "objectColor");
         GLint lightColorLoc  = glGetUniformLocation(objShader.Program, "lightColor");
         GLint lightPosLoc    = glGetUniformLocation(objShader.Program, "lightPos");
+        GLint viewPosLoc     = glGetUniformLocation(objShader.Program, "viewPos");
 
         glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
         glUniform3f(lightColorLoc,  1.0f, 1.0f, 1.0f);
         glUniform3f(lightPosLoc,    lightPos.x, lightPos.y, lightPos.z);
+        glUniform3f(viewPosLoc,     camera.Position.x, camera.Position.y, camera.Position.z);
 
         GLint modelLoc = glGetUniformLocation(objShader.Program, "model");
         GLint viewLoc = glGetUniformLocation(objShader.Program, "view");
