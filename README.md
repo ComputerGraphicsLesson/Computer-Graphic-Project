@@ -3,3 +3,5 @@
 Recommand: Open in CLion
 
 Using glew, glfw3, SOIL, assimp.
+
+Refer to learnopengl.com
