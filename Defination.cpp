@@ -10,6 +10,9 @@ double lastX = WIDTH / 2, lastY = HEIGHT / 2;
 
 const char objVSPath[] = "Shaders/obj.vs";
 const char objFragPath[] = "Shaders/obj.frag";
+const char directFragPath[] = "Shaders/directionallight.frag";
+const char spotFragPath[] = "Shaders/spotlight.frag";
+const char pointFragPath[] = "Shaders/pointlight.frag";
 const char lampVSPath[] = "Shaders/lamp.vs";
 const char lampFragPath[] = "Shaders/lamp.frag";
 const char skyboxVSPath[] = "Shaders/skybox.vs";
@@ -18,6 +21,10 @@ const char modelVSPath[] = "Shaders/model.vs";
 const char modelFragPath[] = "Shaders/model.frag";
 
 const char wallPicPath[] = "Textures/Objects/wall.jpg";
+
+const char containerPicPath[] = "Textures/Objects/container2.png";
+const char containerSpecularPath[] = "Textures/Objects/container2_specular.png";
+
 const vector<string> skyBoxPath =  {
         "Textures/SkyBoxs/right.jpg",
         "Textures/SkyBoxs/left.jpg",

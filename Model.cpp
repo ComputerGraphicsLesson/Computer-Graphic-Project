@@ -11,13 +11,13 @@ Model::Model(GLchar* path)
     this->loadModel(path);
 }
 
-void Model::Draw(Shader shader)
+void Model::Draw(Shader &shader)
 {
     for(GLuint i = 0; i < this->meshes.size(); i++)
         this->meshes[i].Draw(shader);
 }
 
-void Model::loadModel(string path)
+void Model::loadModel(const string &path)
 {
     // Read file via ASSIMP
     Assimp::Importer importer;
@@ -121,7 +121,7 @@ Mesh Model::processMesh(aiMesh* mesh, const aiScene* scene)
     return Mesh(vertices, indices, textures);
 }
 
-vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName)
+vector<Texture> Model::loadMaterialTextures(aiMaterial* mat, aiTextureType type, const string &typeName)
 {
     vector<Texture> textures;
     for(GLuint i = 0; i < mat->GetTextureCount(type); i++)
