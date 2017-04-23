@@ -18,6 +18,10 @@ const char modelVSPath[] = "Shaders/model.vs";
 const char modelFragPath[] = "Shaders/model.frag";
 
 const char wallPicPath[] = "Textures/Objects/wall.jpg";
+
+const char containerPicPath[] = "Textures/Objects/container2.png";
+const char containerSpecularPath[] = "Textures/Objects/container2_specular.png";
+
 const vector<string> skyBoxPath =  {
         "Textures/SkyBoxs/right.jpg",
         "Textures/SkyBoxs/left.jpg",

@@ -23,6 +23,8 @@ extern const char modelVSPath[];
 extern const char modelFragPath[];
 
 extern const char wallPicPath[];
+extern const char containerPicPath[];
+extern const char containerSpecularPath[];
 extern const vector<string> skyBoxPath;
 
 extern GLchar modelPath[];
