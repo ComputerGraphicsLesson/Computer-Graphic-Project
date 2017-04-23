@@ -1,11 +1,13 @@
 #include "Header.h"
 #include "Callback.h"
 #include "Shader.h"
+#include "auxiliary.h"
+#include "Model.h"
 
 void do_movement();
 
-GLfloat deltaTime = 0.0f;
-GLfloat lastFrame = 0.0f;
+double deltaTime = 0.0f;
+double lastFrame = 0.0f;
 
 int main() {
     glfwInit();
@@ -13,6 +15,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
+    glfwWindowHint(GLFW_SAMPLES, 4);
 
     GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "CS", nullptr, nullptr);
     glfwMakeContextCurrent(window);
@@ -27,10 +30,12 @@ int main() {
 
     glViewport(0, 0, WIDTH, HEIGHT);
     glEnable(GL_DEPTH_TEST);
-
+    glEnable(GL_MULTISAMPLE);
     // create shader
     Shader objShader(objVSPath, objFragPath);
     Shader lampShader(lampVSPath, lampFragPath);
+    Shader skyboxShader(skyboxVSPath, skyboxFragPath);
+    Shader modelShader(modelVSPath, modelFragPath);
     // bind array
     GLuint VAO, VBO;
     glGenVertexArrays(1, &VAO);
@@ -57,7 +62,7 @@ int main() {
 
 
     // bind texture
-    GLuint texture1, texture2;
+    GLuint texture1;
     int width, height;
     unsigned char *image;
     glGenTextures(1, & texture1);
@@ -72,22 +77,14 @@ int main() {
     SOIL_free_image_data(image);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glGenTextures(1, & texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    image = SOIL_load_image(skyPicPath, &width, &height, 0, SOIL_LOAD_RGBA);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    SOIL_free_image_data(image);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    GLuint cubemapTexture = loadCubemap(skyBoxPath);
+
+    Model ourModel(modelPath);
 
     vec3 lightPos = vec3(0, 70, 0);
     // Game loop
     while (!glfwWindowShouldClose(window)) {
-        GLfloat currentFrame = glfwGetTime();
+        double currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
@@ -96,6 +93,23 @@ int main() {
 
         glClearColor(0.2, 0.3, 0.3, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        mat4 view, projection, model;
+
+        glDepthMask(GL_FALSE);
+        skyboxShader.Use();
+        view = glm::mat4(glm::mat3(camera.GetViewMatrix()));	// Remove any translation component of the view matrix
+        projection = glm::perspective(camera.Zoom, (float)WIDTH/(float)WIDTH, 0.1f, 100.0f);
+        glUniformMatrix4fv(glGetUniformLocation(skyboxShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(skyboxShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        // skybox cube
+        glBindVertexArray(VAO);
+        glActiveTexture(GL_TEXTURE0);
+        glUniform1i(glGetUniformLocation(skyboxShader.Program, "skybox"), 0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+        glDepthMask(GL_TRUE);
 
         // apply texture
         glActiveTexture(GL_TEXTURE0);
@@ -107,16 +121,17 @@ int main() {
         GLint objectColorLoc = glGetUniformLocation(objShader.Program, "objectColor");
         GLint lightColorLoc  = glGetUniformLocation(objShader.Program, "lightColor");
         GLint lightPosLoc    = glGetUniformLocation(objShader.Program, "lightPos");
+        GLint viewPosLoc     = glGetUniformLocation(objShader.Program, "viewPos");
 
         glUniform3f(objectColorLoc, 1.0f, 0.5f, 0.31f);
         glUniform3f(lightColorLoc,  1.0f, 1.0f, 1.0f);
         glUniform3f(lightPosLoc,    lightPos.x, lightPos.y, lightPos.z);
+        glUniform3f(viewPosLoc,     camera.Position.x, camera.Position.y, camera.Position.z);
 
         GLint modelLoc = glGetUniformLocation(objShader.Program, "model");
         GLint viewLoc = glGetUniformLocation(objShader.Program, "view");
         GLint projLoc = glGetUniformLocation(objShader.Program, "projection");
 
-        mat4 view, projection, model;
         view = camera.GetViewMatrix();
         projection = perspective(camera.Zoom, (float)WIDTH/(float)HEIGHT, 0.1f, 1000.0f);
 
@@ -136,15 +151,6 @@ int main() {
         }
 
 
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-        glUniform1i(glGetUniformLocation(objShader.Program, "ourTexture"), 0);
-        glUniform3f(objectColorLoc, 2.0f, 4.0f, 8.0f);
-        model = glm::mat4();
-        model = glm::translate(model, vec3(0, 35, 0));
-        model = glm::scale(model, vec3(200, 80, 200));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
         lampShader.Use();
@@ -160,6 +166,15 @@ int main() {
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
+
+        modelShader .Use();
+        glUniformMatrix4fv(glGetUniformLocation(modelShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        glUniformMatrix4fv(glGetUniformLocation(modelShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        model = glm::mat4();
+        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // Translate it down a bit so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(0.08f, 0.08f, 0.08f));	// It's a bit too big for our scene, so scale it down
+        glUniformMatrix4fv(glGetUniformLocation(modelShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        ourModel.Draw(modelShader);
 
         // Swap the buffers
         glfwSwapBuffers(window);

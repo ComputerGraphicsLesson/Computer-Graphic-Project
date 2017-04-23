@@ -8,12 +8,26 @@ const GLuint WIDTH = 800, HEIGHT = 600;
 
 double lastX = WIDTH / 2, lastY = HEIGHT / 2;
 
-const char objVSPath[] = "obj.vs";
-const char objFragPath[] = "obj.frag";
-const char lampVSPath[] = "lamp.vs";
-const char lampFragPath[] = "lamp.frag";
-const char wallPicPath[] = "wall.jpg";
-const char skyPicPath[] = "sky.png";
+const char objVSPath[] = "Shaders/obj.vs";
+const char objFragPath[] = "Shaders/obj.frag";
+const char lampVSPath[] = "Shaders/lamp.vs";
+const char lampFragPath[] = "Shaders/lamp.frag";
+const char skyboxVSPath[] = "Shaders/skybox.vs";
+const char skyboxFragPath[] = "Shaders/skybox.frag";
+const char modelVSPath[] = "Shaders/model.vs";
+const char modelFragPath[] = "Shaders/model.frag";
+
+const char wallPicPath[] = "Textures/Objects/wall.jpg";
+const vector<string> skyBoxPath =  {
+        "Textures/SkyBoxs/right.jpg",
+        "Textures/SkyBoxs/left.jpg",
+        "Textures/SkyBoxs/top.jpg",
+        "Textures/SkyBoxs/bottom.jpg",
+        "Textures/SkyBoxs/back.jpg",
+        "Textures/SkyBoxs/front.jpg"
+};
+
+GLchar modelPath[] = "Models/2btest/2bsister.obj";
 
 Camera camera(vec3(0, 10, 3));
 
