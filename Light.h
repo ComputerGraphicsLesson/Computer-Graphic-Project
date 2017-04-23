@@ -37,7 +37,7 @@ public:
         this->quadratic = quadratic;
         type = POINT_LIGHT;
     }
-    Light(vec3 ambient, vec3 diffuse, vec3 specular, float cutoff, float constant, float linear, float quadratic)
+    Light(vec3 ambient, vec3 diffuse, vec3 specular, float cutoff, float outerCutOff, float constant, float linear, float quadratic)
             : shader(objVSPath, spotFragPath) {
         this->ambient = ambient;
         this->diffuse = diffuse;
@@ -46,6 +46,7 @@ public:
         this->linear = linear;
         this->quadratic = quadratic;
         this->cutOff = cutoff;
+        this->outerCutOff = outerCutOff;
         type = SPOT_LIGHT;
     }
     void Draw(GLuint &VAO, Shader& shader);
@@ -56,7 +57,7 @@ public:
     vec3 ambient;
     vec3 diffuse;
     vec3 specular;
-    float cutOff, constant, linear, quadratic;
+    float cutOff, outerCutOff, constant, linear, quadratic;
     Light_Type type;
 };
 

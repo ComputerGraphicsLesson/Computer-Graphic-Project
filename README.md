@@ -2,7 +2,9 @@ Computer-Graphic-Project
 ===================
 
 This is the Computer Graphic 2017 Project.
+
 References:[LearnOpenGL][5] and [Chinese translator][6]
+
 ----------
 
 Technologies

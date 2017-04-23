@@ -195,6 +195,8 @@ void drawSpotlight(GLuint &VAO, Light &light,
     glUniform3f(glGetUniformLocation(light.shader.Program, "light.direction"), camera.Front.x, camera.Front.y, camera.Front.z);
     float tempFloat = light.cutOff;
     glUniform1f(glGetUniformLocation(light.shader.Program, "light.cutOff"), glm::cos(glm::radians(tempFloat)));
+    tempFloat = light.outerCutOff;
+    glUniform1f(glGetUniformLocation(light.shader.Program, "light.outerCutOff"), glm::cos(glm::radians(tempFloat)));
     tempFloat = light.constant;
     glUniform1f(glGetUniformLocation(light.shader.Program, "light.constant"),  tempFloat);
     tempFloat = light.linear;
