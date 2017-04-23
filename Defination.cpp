@@ -27,7 +27,7 @@ const vector<string> skyBoxPath =  {
         "Textures/SkyBoxs/front.jpg"
 };
 
-GLchar modelPath[] = "Models/2btest/2bsister.obj";
+GLchar modelPath[] = "Models/2b/2b.obj";
 
 Camera camera(vec3(0, 10, 3));
 
