@@ -8,7 +8,7 @@ set(SOURCE_FILES Header.h main.cpp
         Camera.cpp Camera.h
         Model.cpp Model.h
         Defination.h
-        Callback.cpp Callback.h Defination.cpp)
+        Callback.cpp Callback.h Defination.cpp auxiliary.cpp auxiliary.h)
 
 add_executable(CG_Project ${SOURCE_FILES})
 

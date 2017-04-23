@@ -17,8 +17,11 @@ extern const char objVSPath[];
 extern const char objFragPath[];
 extern const char lampVSPath[];
 extern const char lampFragPath[];
+extern const char skyboxVSPath[];
+extern const char skyboxFragPath[];
+
 extern const char wallPicPath[];
-extern const char skyPicPath[];
+extern const vector<string> skyBoxPath;
 
 extern Camera camera;
 

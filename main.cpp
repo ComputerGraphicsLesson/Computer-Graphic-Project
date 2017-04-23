@@ -1,6 +1,7 @@
 #include "Header.h"
 #include "Callback.h"
 #include "Shader.h"
+#include "auxiliary.h"
 
 void do_movement();
 
@@ -31,6 +32,7 @@ int main() {
     // create shader
     Shader objShader(objVSPath, objFragPath);
     Shader lampShader(lampVSPath, lampFragPath);
+    Shader skyboxShader(skyboxVSPath, skyboxFragPath);
     // bind array
     GLuint VAO, VBO;
     glGenVertexArrays(1, &VAO);
@@ -72,17 +74,7 @@ int main() {
     SOIL_free_image_data(image);
     glBindTexture(GL_TEXTURE_2D, 0);
 
-    glGenTextures(1, & texture2);
-    glBindTexture(GL_TEXTURE_2D, texture2);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    image = SOIL_load_image(skyPicPath, &width, &height, 0, SOIL_LOAD_RGBA);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-    glGenerateMipmap(GL_TEXTURE_2D);
-    SOIL_free_image_data(image);
-    glBindTexture(GL_TEXTURE_2D, 0);
+    GLuint cubemapTexture = loadCubemap(skyBoxPath);
 
     vec3 lightPos = vec3(0, 70, 0);
     // Game loop
@@ -96,6 +88,23 @@ int main() {
 
         glClearColor(0.2, 0.3, 0.3, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        mat4 view, projection, model;
+
+        glDepthMask(GL_FALSE);
+        skyboxShader.Use();
+        view = glm::mat4(glm::mat3(camera.GetViewMatrix()));	// Remove any translation component of the view matrix
+        projection = glm::perspective(camera.Zoom, (float)WIDTH/(float)WIDTH, 0.1f, 100.0f);
+        glUniformMatrix4fv(glGetUniformLocation(skyboxShader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+        glUniformMatrix4fv(glGetUniformLocation(skyboxShader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+        // skybox cube
+        glBindVertexArray(VAO);
+        glActiveTexture(GL_TEXTURE0);
+        glUniform1i(glGetUniformLocation(skyboxShader.Program, "skybox"), 0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+        glDepthMask(GL_TRUE);
 
         // apply texture
         glActiveTexture(GL_TEXTURE0);
@@ -118,7 +127,6 @@ int main() {
         GLint viewLoc = glGetUniformLocation(objShader.Program, "view");
         GLint projLoc = glGetUniformLocation(objShader.Program, "projection");
 
-        mat4 view, projection, model;
         view = camera.GetViewMatrix();
         projection = perspective(camera.Zoom, (float)WIDTH/(float)HEIGHT, 0.1f, 1000.0f);
 
@@ -136,17 +144,6 @@ int main() {
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
-
-
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, texture2);
-        glUniform1i(glGetUniformLocation(objShader.Program, "ourTexture"), 0);
-        glUniform3f(objectColorLoc, 2.0f, 4.0f, 8.0f);
-        model = glm::mat4();
-        model = glm::translate(model, vec3(0, 35, 0));
-        model = glm::scale(model, vec3(200, 80, 200));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
         lampShader.Use();

@@ -5,8 +5,7 @@ in vec3 Normal;
 in vec2 TexCoord;
 
 struct Material {
-    vec3 ambient;
-    vec3 diffuse;
+    sampler2D diffuse;
     vec3 specular;
     float shininess;
 };
