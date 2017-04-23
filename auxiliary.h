@@ -8,6 +8,7 @@
 #include "Header.h"
 #include "Defination.h"
 
-GLuint loadCubemap(vector<string> textures);
+GLuint loadCubemap(const vector<string> &textures);
+GLuint loadTexture(const string &texture);
 
 #endif //CG_PROJECT_AUXILIARY_H

@@ -14,7 +14,7 @@ class Model
 public:
     /*  成员函数   */
     Model(GLchar* path);
-    void Draw(Shader shader);
+    void Draw(Shader &shader);
 private:
     /*  模型数据  */
     vector<Texture> textures_loaded;
@@ -22,10 +22,10 @@ private:
     string directory;
 
     /*  私有成员函数   */
-    void loadModel(string path);
+    void loadModel(const string &path);
     void processNode(aiNode* node, const aiScene* scene);
     Mesh processMesh(aiMesh* mesh, const aiScene* scene);
-    vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, string typeName);
+    vector<Texture> loadMaterialTextures(aiMaterial* mat, aiTextureType type, const string &typeName);
 };
 
 

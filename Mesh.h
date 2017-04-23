@@ -15,8 +15,9 @@ public:
     vector<Vertex> vertices;
     vector<GLuint> indices;
     vector<Texture> textures;
-    Mesh(vector<Vertex> vertices, vector<GLuint> indices, vector<Texture> texture);
-    void Draw(Shader shader);
+    Mesh(const vector<Vertex> &vertices, const vector<GLuint> &indices, const vector<Texture> &textures);
+
+    void Draw(Shader &shader);
 
 private:
     GLuint VAO, VBO, EBO;
