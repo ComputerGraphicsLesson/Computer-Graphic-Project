@@ -9,39 +9,42 @@ void do_movement();
 double deltaTime = 0.0f;
 double lastFrame = 0.0f;
 
+bool skyboxEnable = false;
+bool modelEnable = false;
+int lightKind = 0;
 
 int main() {
+    // Create Window
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_SAMPLES, 4);
-
     GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "CS", nullptr, nullptr);
     glfwMakeContextCurrent(window);
-
+    // Set Callback Function
     glfwSetKeyCallback(window, key_callback);
     glfwSetCursorPosCallback(window, mouse_callback);
-
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
+    // Init GLEW
     glewExperimental = GL_TRUE;
     glewInit();
-
+    // Set Window
     glViewport(0, 0, WIDTH, HEIGHT);
+    // Enable Depth Test
     glEnable(GL_DEPTH_TEST);
+    // Enable Anti Aliasing
     glEnable(GL_MULTISAMPLE);
-    // create shader
-    Shader objShader(objVSPath, objFragPath);
+    // Create Shader
     Shader lampShader(lampVSPath, lampFragPath);
     Shader skyboxShader(skyboxVSPath, skyboxFragPath);
     Shader modelShader(modelVSPath, modelFragPath);
-    // bind array
-    GLuint VAO, VBO;
+    // Create VAO and VBO
+    GLuint VAO, VBO, lightVAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-
+    // Bind Cube's VAO
     glBindVertexArray(VAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(cube), cube, GL_STATIC_DRAW);
@@ -52,8 +55,7 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*) (6 * sizeof(GLfloat)));
     glEnableVertexAttribArray(2);
     glBindVertexArray(0);
-
-    GLuint lightVAO;
+    // Bind light's VAO
     glGenVertexArrays(1, &lightVAO);
     glBindVertexArray(lightVAO);
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
@@ -61,15 +63,15 @@ int main() {
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
 
-    vec3 lightPos = vec3(0, 20, 0);
+    Light directLight(vec3(-0.2, -1.0, -0.3), vec3(0.2, 0.2, 0.2), vec3(0.5, 0.5, 0.5), vec3(1.0, 1.0, 1.0));
+    Light pointLight(vec3(0, 30, 0), vec3(0.2, 0.2, 0.2), vec3(0.5, 0.5, 0.5), vec3(1.0, 1.0, 1.0), 1.0, 0.00001, 0.000001);
+    Light spotLight(vec3(0.1f, 0.1f, 0.1f), vec3(0.8f, 0.8f, 0.8f), vec3(1.0f, 1.0f, 1.0f), 12.5, 1.0, 0.0001, 0.000001);
 
-    // bind texture
-    GLuint texture1 = loadTexture(containerPicPath, PNG);
-    GLuint texture2 = loadTexture(containerSpecularPath, PNG);
-
-
-    GLuint cubemapTexture = loadCubemap(skyBoxPath);
-//    Model ourModel(modelPath);
+    // Bind texture
+    GLuint diffTex = loadTexture(containerPicPath, PNG);
+    GLuint specularTex = loadTexture(containerSpecularPath, PNG);
+    GLuint skyboxTex = loadCubemap(skyBoxPath);
+    Model ourModel(modelPath);
 
     // Game loop
     while (!glfwWindowShouldClose(window)) {
@@ -83,35 +85,24 @@ int main() {
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//        drawSkybox(VAO, skyboxShader, cubemapTexture);
+        if (skyboxEnable)
+            drawSkybox(VAO, skyboxShader, skyboxTex);
 
-        lampShader.Use();
-        mat4 view = camera.GetViewMatrix();
-        mat4 projection = glm::perspective(camera.Zoom, (float)WIDTH/(float)WIDTH, 0.1f, 100.0f);
-        GLint modelLoc = glGetUniformLocation(lampShader.Program, "model");
-        GLint viewLoc  = glGetUniformLocation(lampShader.Program, "view");
-        GLint projLoc  = glGetUniformLocation(lampShader.Program, "projection");
-        glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-        glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-        mat4 model = glm::mat4();
-        model = glm::translate(model, lightPos);
-        model = glm::scale(model, vec3(4, 4, 4));
-        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-        // Draw the light object (using light's vertex attributes)
-        glBindVertexArray(lightVAO);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        glBindVertexArray(0);
+        if (lightKind == 0) {
+            drawObject(VAO, directLight, diffTex, specularTex);
+        } else if (lightKind == 1) {
+            drawObject(VAO, pointLight, diffTex, specularTex);
+            pointLight.Draw(VAO, lampShader);
+        } else {
+            drawObject(VAO, spotLight, diffTex, specularTex);
+        }
 
-        drawObject(VAO, objShader, lightPos, texture1, texture2);
-
-//        model = glm::mat4();
-//        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // Translate it down a bit so it's at the center of the scene
-//        model = glm::scale(model, glm::vec3(0.08f, 0.08f, 0.08f));	// It's a bit too big for our scene, so scale it down
-//        drawModel(ourModel, modelShader, model);
-
-
-
-
+        mat4 model;
+        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // Translate it down a bit so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(0.08f, 0.08f, 0.08f));	// It's a bit too big for our scene, so scale it down
+        if (modelEnable) {
+            drawModel(ourModel, modelShader, model);
+        }
         glfwSwapBuffers(window);
     }
 
@@ -131,4 +122,10 @@ void do_movement() {
         camera.ProcessKeyboard(LEFT, deltaTime);
     if(keys[GLFW_KEY_D])
         camera.ProcessKeyboard(RIGHT, deltaTime);
+    if(keys[GLFW_KEY_T])
+        skyboxEnable = !skyboxEnable;
+    if(keys[GLFW_KEY_L])
+        lightKind = (lightKind + 1) % 3;
+    if(keys[GLFW_KEY_M])
+        modelEnable = !modelEnable;
 }

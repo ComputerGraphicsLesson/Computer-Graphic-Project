@@ -10,6 +10,9 @@ double lastX = WIDTH / 2, lastY = HEIGHT / 2;
 
 const char objVSPath[] = "Shaders/obj.vs";
 const char objFragPath[] = "Shaders/obj.frag";
+const char directFragPath[] = "Shaders/directionallight.frag";
+const char spotFragPath[] = "Shaders/spotlight.frag";
+const char pointFragPath[] = "Shaders/pointlight.frag";
 const char lampVSPath[] = "Shaders/lamp.vs";
 const char lampFragPath[] = "Shaders/lamp.frag";
 const char skyboxVSPath[] = "Shaders/skybox.vs";

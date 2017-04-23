@@ -78,44 +78,155 @@ void drawSkybox(GLuint &VAO, Shader &shader, GLuint &skyboxTex) {
     glDepthMask(GL_TRUE);
 }
 
-void drawObject(GLuint &VAO, Shader &shader, vec3 &lightPos,
+void drawObject(GLuint &VAO, Light &light,
                 GLuint &diffuseTex, GLuint &specularTex) {
+    if (light.type == SPOT_LIGHT) {
+        drawSpotlight(VAO, light, diffuseTex, specularTex);
+    } else if (light.type == DIRECTIONAL_LIGHT) {
+        drawDirectionallight(VAO, light, diffuseTex, specularTex);
+    } else if (light.type == POINT_LIGHT) {
+        drawPointlight(VAO, light, diffuseTex, specularTex);
+    }
+}
 
-    shader.Use();
-
-    mat4 projection, view, model;
-    view = camera.GetViewMatrix();
-    projection = glm::perspective(camera.Zoom, (float)WIDTH/(float)WIDTH, 0.1f, 100.0f);
-    GLint modelLoc = glGetUniformLocation(shader.Program, "model");      
-    
-    GLint viewLoc  = glGetUniformLocation(shader.Program,  "view");      
-    
-    GLint projLoc  = glGetUniformLocation(shader.Program,  "projection");
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
+void drawPointlight(GLuint &VAO, Light &light,
+                    GLuint &diffuseTex, GLuint &specularTex) {
+    light.shader.Use();
+    GLint viewPosLoc  = glGetUniformLocation(light.shader.Program, "viewPos");
+    glUniform3f(viewPosLoc,  camera.Position.x, camera.Position.y, camera.Position.z);
+    // Set lights properties
+    vec3 temp = light.position;
+    glUniform3f(glGetUniformLocation(light.shader.Program, "light.position"), temp.x, temp.y, temp.z);
+    temp = light.ambient;
+    glUniform3f(glGetUniformLocation(light.shader.Program, "light.ambient"), temp.x, temp.y, temp.z);
+    temp = light.diffuse;
+    glUniform3f(glGetUniformLocation(light.shader.Program, "light.diffuse"), temp.x, temp.y, temp.z);
+    temp = light.specular;
+    glUniform3f(glGetUniformLocation(light.shader.Program, "light.specular"), temp.x, temp.y, temp.z);
+    float tempFloat = light.constant;
+    glUniform1f(glGetUniformLocation(light.shader.Program, "light.constant"), tempFloat);
+    tempFloat = light.linear;
+    glUniform1f(glGetUniformLocation(light.shader.Program, "light.linear"), tempFloat);
+    tempFloat = light.quadratic;
+    glUniform1f(glGetUniformLocation(light.shader.Program, "light.quadratic"), tempFloat);
+    // Set material properties
+    // Bind diffuse map
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, diffuseTex);
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, specularTex);
-    glUniform1i(glGetUniformLocation(shader.Program, "ourTex"), 0);
-
-    GLint viewPosLoc = glGetUniformLocation(shader.Program, "viewPos");
-    glUniform3f(viewPosLoc, camera.Position.x, camera.Position.y, camera.Position.z);
-    // Set lights properties
-    glUniform3f(glGetUniformLocation(shader.Program, "light.position"), lightPos.x, lightPos.y, lightPos.z);
-    glUniform3f(glGetUniformLocation(shader.Program, "light.ambient"),  0.2f, 0.2f, 0.2f);
-    glUniform3f(glGetUniformLocation(shader.Program, "light.diffuse"),  0.5f, 0.5f, 0.5f);
-    glUniform3f(glGetUniformLocation(shader.Program, "light.specular"), 1.0f, 1.0f, 1.0f);
-    // Set material properties
-    glUniform1f(glGetUniformLocation(shader.Program, "material.shininess"), 32.0f);
-    glUniform1i(glGetUniformLocation(shader.Program, "material.diffuse"),  0);
-    glUniform1i(glGetUniformLocation(shader.Program, "material.specular"), 1);
-
+    glUniform1f(glGetUniformLocation(light.shader.Program, "material.shininess"), 32.0f);
+    glUniform1i(glGetUniformLocation(light.shader.Program, "material.diffuse"),  0);
+    glUniform1i(glGetUniformLocation(light.shader.Program, "material.specular"), 1);
+    // Create camera transformations
+    glm::mat4 view = camera.GetViewMatrix();
+    glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
+    glUniformMatrix4fv(glGetUniformLocation(light.shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(light.shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    // Draw Cubes
+    GLint modelLoc = glGetUniformLocation(light.shader.Program, "model");
+    mat4 model;
     glBindVertexArray(VAO);
     for(GLuint i = 0; i < 12; i++)
     {
         // Calculate the model matrix for each object and pass it to shader before drawing
+        model = glm::mat4();
+        model = glm::translate(model, cubePositions[i]);
+        model = glm::scale(model, cubeScales[i]);
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+
+    glBindVertexArray(0);
+}
+
+void drawDirectionallight(GLuint &VAO, Light &light,
+                          GLuint &diffuseTex, GLuint &specularTex) {
+    light.shader.Use();
+    // Set View Position
+    glUniform3f(glGetUniformLocation(light.shader.Program, "viewPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+    // Set Light
+    vec3 temp = light.direction;
+    glUniform3f(glGetUniformLocation(light.shader.Program, "light.direction"), temp.x, temp.y, temp.z);
+    temp = light.ambient;
+    glUniform3f(glGetUniformLocation(light.shader.Program, "light.ambient"),  temp.x, temp.y, temp.z);
+    temp = light.diffuse;
+    glUniform3f(glGetUniformLocation(light.shader.Program, "light.diffuse"),  temp.x, temp.y, temp.z);
+    temp = light.diffuse;
+    glUniform3f(glGetUniformLocation(light.shader.Program, "light.specular"), temp.x, temp.y, temp.z);
+    // Bind Texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, diffuseTex);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, specularTex);
+    // Set material properties
+    glUniform1f(glGetUniformLocation(light.shader.Program, "material.shininess"), 32.0f);
+    glUniform1i(glGetUniformLocation(light.shader.Program, "material.diffuse"),  0);
+    glUniform1i(glGetUniformLocation(light.shader.Program, "material.specular"), 1);
+    // Create camera transformations
+    glm::mat4 view = camera.GetViewMatrix();
+    glUniformMatrix4fv(glGetUniformLocation(light.shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
+    glUniformMatrix4fv(glGetUniformLocation(light.shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    // Draw Cubes
+    GLint modelLoc = glGetUniformLocation(light.shader.Program, "model");
+    mat4 model;
+    glBindVertexArray(VAO);
+    for(GLuint i = 0; i < 12; i++)
+    {
+        model = glm::mat4();
+        model = glm::translate(model, cubePositions[i]);
+        model = glm::scale(model, cubeScales[i]);
+        glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+    }
+    glBindVertexArray(0);
+}
+
+void drawSpotlight(GLuint &VAO, Light &light,
+                   GLuint &diffuseTex, GLuint &specularTex) {
+    light.shader.Use();
+    // Set View Position
+    glUniform3f(glGetUniformLocation(light.shader.Program, "viewPos"), camera.Position.x, camera.Position.y, camera.Position.z);
+    // Set Light
+    glUniform3f(glGetUniformLocation(light.shader.Program, "light.position"), camera.Position.x, camera.Position.y, camera.Position.z);
+    glUniform3f(glGetUniformLocation(light.shader.Program, "light.direction"), camera.Front.x, camera.Front.y, camera.Front.z);
+    float tempFloat = light.cutOff;
+    glUniform1f(glGetUniformLocation(light.shader.Program, "light.cutOff"), glm::cos(glm::radians(tempFloat)));
+    tempFloat = light.constant;
+    glUniform1f(glGetUniformLocation(light.shader.Program, "light.constant"),  tempFloat);
+    tempFloat = light.linear;
+    glUniform1f(glGetUniformLocation(light.shader.Program, "light.linear"),    tempFloat);
+    tempFloat = light.quadratic;
+    glUniform1f(glGetUniformLocation(light.shader.Program, "light.quadratic"), tempFloat);
+    vec3 temp = light.ambient;
+    glUniform3f(glGetUniformLocation(light.shader.Program, "light.ambient"), temp.x, temp.y, temp.z);
+    temp = light.diffuse;
+    glUniform3f(glGetUniformLocation(light.shader.Program, "light.diffuse"), temp.x, temp.y, temp.z);
+    temp = light.specular;
+    glUniform3f(glGetUniformLocation(light.shader.Program, "light.specular"), temp.x, temp.y, temp.z);
+    // Bind Texture
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, diffuseTex);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, specularTex);
+    // Set material properties
+    glUniform1f(glGetUniformLocation(light.shader.Program, "material.shininess"), 32.0f);
+    glUniform1i(glGetUniformLocation(light.shader.Program, "material.diffuse"),  0);
+    glUniform1i(glGetUniformLocation(light.shader.Program, "material.specular"), 1);
+    // Create camera transformations
+    glm::mat4 view = camera.GetViewMatrix();
+    glm::mat4 projection = glm::perspective(camera.Zoom, (GLfloat)WIDTH / (GLfloat)HEIGHT, 0.1f, 100.0f);
+    glUniformMatrix4fv(glGetUniformLocation(light.shader.Program, "view"), 1, GL_FALSE, glm::value_ptr(view));
+    glUniformMatrix4fv(glGetUniformLocation(light.shader.Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    // Draw Cubes
+    GLint modelLoc = glGetUniformLocation(light.shader.Program, "model");
+    mat4 model;
+    glBindVertexArray(VAO);
+    for(GLuint i = 0; i < 12; i++)
+    {
         model = glm::mat4();
         model = glm::translate(model, cubePositions[i]);
         model = glm::scale(model, cubeScales[i]);
