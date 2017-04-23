@@ -2,6 +2,7 @@
 #include "Callback.h"
 #include "Shader.h"
 #include "auxiliary.h"
+#include "Model.h"
 
 void do_movement();
 
@@ -33,6 +34,7 @@ int main() {
     Shader objShader(objVSPath, objFragPath);
     Shader lampShader(lampVSPath, lampFragPath);
     Shader skyboxShader(skyboxVSPath, skyboxFragPath);
+    Shader modelShader(modelVSPath, modelFragPath);
     // bind array
     GLuint VAO, VBO;
     glGenVertexArrays(1, &VAO);
@@ -59,7 +61,7 @@ int main() {
 
 
     // bind texture
-    GLuint texture1, texture2;
+    GLuint texture1;
     int width, height;
     unsigned char *image;
     glGenTextures(1, & texture1);
@@ -75,6 +77,8 @@ int main() {
     glBindTexture(GL_TEXTURE_2D, 0);
 
     GLuint cubemapTexture = loadCubemap(skyBoxPath);
+
+    Model ourModel(modelPath);
 
     vec3 lightPos = vec3(0, 70, 0);
     // Game loop
@@ -144,6 +148,8 @@ int main() {
 
             glDrawArrays(GL_TRIANGLES, 0, 36);
         }
+
+
         glBindVertexArray(0);
 
         lampShader.Use();
@@ -159,6 +165,12 @@ int main() {
         glBindVertexArray(lightVAO);
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
+
+        model = glm::mat4();
+        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // Translate it down a bit so it's at the center of the scene
+        model = glm::scale(model, glm::vec3(0.08f, 0.08f, 0.08f));	// It's a bit too big for our scene, so scale it down
+        glUniformMatrix4fv(glGetUniformLocation(modelShader.Program, "model"), 1, GL_FALSE, glm::value_ptr(model));
+        ourModel.Draw(modelShader);
 
         // Swap the buffers
         glfwSwapBuffers(window);

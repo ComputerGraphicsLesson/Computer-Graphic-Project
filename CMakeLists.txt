@@ -8,7 +8,7 @@ set(SOURCE_FILES Header.h main.cpp
         Camera.cpp Camera.h
         Model.cpp Model.h
         Defination.h
-        Callback.cpp Callback.h Defination.cpp auxiliary.cpp auxiliary.h)
+        Callback.cpp Callback.h Defination.cpp auxiliary.cpp auxiliary.h Mesh.cpp Mesh.h)
 
 add_executable(CG_Project ${SOURCE_FILES})
 
@@ -26,3 +26,4 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME} Xinerama)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} Xcursor)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} pthread)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} SOIL)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} assimp)
