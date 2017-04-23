@@ -2,7 +2,7 @@ Computer-Graphic-Project
 ===================
 
 This is the Computer Graphic 2017 Project.
-
+References:[LearnOpenGL][5] and [Chinese translator][6]
 ----------
 
 Technologies
@@ -79,4 +79,5 @@ Run
 [2]: http://http://www.glfw.org/
 [3]: http://www.lonesock.net/soil.html
 [4]: http://assimp.sourceforge.net/
-
+[5]: https://learnopengl.com/
+[6]: http://learnopengl-cn.readthedocs.io/zh/latest/
