@@ -1,17 +1,13 @@
-#include "Header.h"
-#include "Callback.h"
+#include "Headers.h"
 #include "Shader.h"
 #include "auxiliary.h"
+#include "Controller.h"
+#include "Mesh.h"
 #include "Model.h"
-
-void do_movement();
+#include "SkyBox.h"
 
 double deltaTime = 0.0f;
 double lastFrame = 0.0f;
-
-bool skyboxEnable = false;
-bool modelEnable = false;
-int lightKind = 0;
 
 int main() {
     // Create Window
@@ -21,11 +17,11 @@ int main() {
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
     glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
     glfwWindowHint(GLFW_SAMPLES, 4);
-    GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "CS", nullptr, nullptr);
+    GLFWwindow *window = glfwCreateWindow(WIDTH, HEIGHT, "Computer Project Demo", nullptr, nullptr);
     glfwMakeContextCurrent(window);
     // Set Callback Function
-    glfwSetKeyCallback(window, key_callback);
-    glfwSetCursorPosCallback(window, mouse_callback);
+    glfwSetKeyCallback(window, Controller::KeyCallback);
+    glfwSetCursorPosCallback(window, Controller::MouseCallback);
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     // Init GLEW
     glewExperimental = GL_TRUE;
@@ -36,11 +32,14 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     // Enable Anti Aliasing
     glEnable(GL_MULTISAMPLE);
+    mainCamera = new Camera(vec3(0, 10, 0));
+    LightHandler::getLight();
     // Create Shader
     Shader lampShader(lampVSPath, lampFragPath);
     Shader skyboxShader(skyboxVSPath, skyboxFragPath);
     Shader modelShader(modelVSPath, modelFragPath);
     // Create VAO and VBO
+
     GLuint VAO, VBO, lightVAO;
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -62,70 +61,73 @@ int main() {
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(0);
     glBindVertexArray(0);
+    // Create All Kinds of Light
+    LightHandler::light->ChangeDirLight(vec3(-0.2, -1.0, -0.3), vec3(0.2, 0.2, 0.2), vec3(0.5, 0.5, 0.5), vec3(1.0, 1.0, 1.0));
+    LightHandler::light->AddPointLight(vec3(0, 30, 0), vec3(0.2, 0.2, 0.2), vec3(0.5, 0.5, 0.5), vec3(1.0, 1.0, 1.0), 1.0, 0.001, 0.0001);
+    LightHandler::light->AddPointLight(vec3(30, 30, 0), vec3(0.2, 0.2, 0.2), vec3(0.5, 0.5, 0.5), vec3(1.0, 1.0, 1.0), 1.0, 0.001, 0.0001);
+    LightHandler::light->AddPointLight(vec3(0, 30, 30), vec3(0.2, 0.2, 0.2), vec3(0.5, 0.5, 0.5), vec3(1.0, 1.0, 1.0), 1.0, 0.001, 0.0001);
+    LightHandler::light->ChangeSpotLight(vec3(0.1f, 0.1f, 0.1f), vec3(0.8f, 0.8f, 0.8f), vec3(1.0f, 1.0f, 1.0f), 12.5, 17.5, 1.0, 0.0001, 0.000001);
 
-    Light directLight(vec3(-0.2, -1.0, -0.3), vec3(0.2, 0.2, 0.2), vec3(0.5, 0.5, 0.5), vec3(1.0, 1.0, 1.0));
-    Light pointLight(vec3(0, 30, 0), vec3(0.2, 0.2, 0.2), vec3(0.5, 0.5, 0.5), vec3(1.0, 1.0, 1.0), 1.0, 0.00001, 0.000001);
-    Light spotLight(vec3(0.1f, 0.1f, 0.1f), vec3(0.8f, 0.8f, 0.8f), vec3(1.0f, 1.0f, 1.0f), 12.5, 1.0, 0.0001, 0.000001);
+    LightHandler::light->Triggle(SPOT_LIGHT);
+
+    LightHandler::light->Triggle(DIRECTIONAL_LIGHT);
+
+    LightHandler::light->Triggle(POINT_LIGHT);
 
     // Bind texture
-    GLuint diffTex = loadTexture(containerPicPath, PNG);
-    GLuint specularTex = loadTexture(containerSpecularPath, PNG);
-    GLuint skyboxTex = loadCubemap(skyBoxPath);
-    Model ourModel(modelPath);
+    Texture diffTex(containerPicPath);
+    Texture specularTex(containerSpecularPath);
+    Texture checkboardTex(checkboardPath);
+    Model skyModel("Models/sphere.obj");
+    SkyBox skyBox(mainCamera, &skyModel, skyBoxPath);
 
+//    Model ourModel(modelPath);
     // Game loop
+    Model mymodel(modelPath);
+    double currentFrame;
     while (!glfwWindowShouldClose(window)) {
-        double currentFrame = glfwGetTime();
+        currentFrame = glfwGetTime();
         deltaTime = currentFrame - lastFrame;
         lastFrame = currentFrame;
 
         glfwPollEvents();
-        do_movement();
-
+        Controller::Movement(deltaTime);
+        // Clear
         glClearColor(0.0, 0.0, 0.0, 1.0);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        if (skyboxEnable)
-            drawSkybox(VAO, skyboxShader, skyboxTex);
-
-        if (lightKind == 0) {
-            drawObject(VAO, directLight, diffTex, specularTex);
-        } else if (lightKind == 1) {
-            drawObject(VAO, pointLight, diffTex, specularTex);
-            pointLight.Draw(VAO, lampShader);
-        } else {
-            drawObject(VAO, spotLight, diffTex, specularTex);
-        }
-
+        // Draw Sky Box
+//        if (skyboxEnable)
+        skyBox.Draw(skyboxShader);
+        // Draw Check Board
+        LightHandler::light->Draw(VAO, lampShader);
         mat4 model;
-        model = glm::translate(model, glm::vec3(0.0f, -1.75f, 0.0f)); // Translate it down a bit so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(0.08f, 0.08f, 0.08f));	// It's a bit too big for our scene, so scale it down
-        if (modelEnable) {
-            drawModel(ourModel, modelShader, model);
-        }
+        model = translate(model, vec3(0, -1, 0));
+        model = scale(model, vec3(1, 1, 1));
+//        LightHandler::light->ChangeMaterial(32, checkboardTex, checkboardTex);
+//        drawObject(VAO, model, checkboardTex, checkboardTex);
+
+
+        LightHandler::light->Use(model);
+        LightHandler::light->ChangeMaterial(32, specularTex, specularTex);
+//        glBindVertexArray(VAO);
+
+        model = translate(model, vec3(0, -100, 0));
+        LightHandler::light->Use(model);
+        mymodel.Draw(LightHandler::light->shader);
+        glBindVertexArray(0);
+
+        // Draw Chess
+//        mat4 scale = glm::scale(mat4(), glm::vec3(0.08f, 0.08f, 0.08f));
+//        JudgeHandler::judge->chessBoard.Draw(VAO, diffTex, specularTex);
+        // Swap Buffer
         glfwSwapBuffers(window);
     }
 
     glDeleteVertexArrays(1, &VAO);
+    glDeleteVertexArrays(1, &lightVAO);
     glDeleteBuffers(1, &VBO);
+
+    delete mainCamera;
     glfwTerminate();
     return 0;
-}
-
-void do_movement() {
-    // Camera controls
-    if(keys[GLFW_KEY_W])
-        camera.ProcessKeyboard(FORWARD, deltaTime);
-    if(keys[GLFW_KEY_S])
-        camera.ProcessKeyboard(BACKWARD, deltaTime);
-    if(keys[GLFW_KEY_A])
-        camera.ProcessKeyboard(LEFT, deltaTime);
-    if(keys[GLFW_KEY_D])
-        camera.ProcessKeyboard(RIGHT, deltaTime);
-    if(keys[GLFW_KEY_T])
-        skyboxEnable = !skyboxEnable;
-    if(keys[GLFW_KEY_L])
-        lightKind = (lightKind + 1) % 3;
-    if(keys[GLFW_KEY_M])
-        modelEnable = !modelEnable;
 }

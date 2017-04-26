@@ -3,12 +3,21 @@ project(CG_Project)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES Header.h main.cpp
+set(SOURCE_FILES
+        Headers.h main.cpp
         Shader.cpp Shader.h
         Camera.cpp Camera.h
+        Definition.h Definition.cpp
+        auxiliary.cpp auxiliary.h
+        Mesh.cpp Mesh.h
+        Light.cpp Light.h
+        Controller.cpp Controller.h
+        Texture.cpp Texture.h
+        Path.cpp Path.h
         Model.cpp Model.h
-        Defination.h
-        Callback.cpp Callback.h Defination.cpp auxiliary.cpp auxiliary.h Mesh.cpp Mesh.h Object.cpp Object.h Light.cpp Light.h)
+        CubemapTexture.cpp
+        CubemapTexture.h
+        SkyBox.cpp SkyBox.h)
 
 add_executable(CG_Project ${SOURCE_FILES})
 

@@ -5,10 +5,9 @@
 #ifndef CG_PROJECT_AUXILIARY_H
 #define CG_PROJECT_AUXILIARY_H
 
-#include "Header.h"
-#include "Defination.h"
+#include "Headers.h"
+#include "Definition.h"
 #include "Shader.h"
-#include "Model.h"
 #include "Light.h"
 
 enum Picture_Type {
@@ -16,13 +15,9 @@ enum Picture_Type {
     PNG
 };
 
-GLuint loadCubemap(const vector<string> &textures);
-GLuint loadTexture(const string &texture, Picture_Type type);
-void drawSkybox(GLuint &VAO, Shader &shader, GLuint &skyboxTex);
-void drawObject(GLuint &VAO, Light &light, GLuint &diffuseTex, GLuint &specularTex);
-void drawPointlight(GLuint &VAO, Light &light, GLuint &diffuseTex, GLuint &specularTex);
-void drawDirectionallight(GLuint &VAO, Light &light, GLuint &diffuseTex, GLuint &specularTex);
-void drawSpotlight(GLuint &VAO, Light &light, GLuint &diffuseTex, GLuint &specularTex);
-void drawModel(Model ourModel, Shader &shader, const mat4 &model);
+
+
+void drawObject(GLuint &VAO, const mat4 &model, Texture &diffuseTex, Texture &specularTex);
+
 
 #endif //CG_PROJECT_AUXILIARY_H

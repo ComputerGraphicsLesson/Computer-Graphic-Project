@@ -4,23 +4,22 @@
 
 #include "Camera.h"
 
-
 mat4 Camera::GetViewMatrix() {
     return lookAt(Position , Position + Front, Up);
 }
 
 void Camera::ProcessKeyboard(Camera_Movement direction, GLfloat deltaTime) {
     GLfloat velocity = MovementSpeed * deltaTime;
-    if (direction == FORWARD) {
+    if (direction == CAM_FORWARD) {
         Position += Front * velocity;
     }
-    if (direction == BACKWARD) {
+    if (direction == CAM_BACKWARD) {
         Position -= Front * velocity;
     }
-    if (direction == LEFT) {
+    if (direction == CAM_LEFT) {
         Position -= Right * velocity;
     }
-    if (direction == RIGHT) {
+    if (direction == CAM_RIGHT) {
         Position += Right * velocity;
     }
 }

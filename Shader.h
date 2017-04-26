@@ -5,7 +5,7 @@
 #ifndef CG_PROJECT_SHADER_H
 #define CG_PROJECT_SHADER_H
 
-#include "Header.h"
+#include "Headers.h"
 
 using namespace std;
 
