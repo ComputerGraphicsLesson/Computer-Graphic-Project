@@ -7,9 +7,9 @@
 
 #include "Headers.h"
 #include "Shader.h"
-#include "Path.h"
 #include "Definition.h"
 #include "Texture.h"
+#include "Camera.h"
 
 enum Light_Type {
     POINT_LIGHT,
@@ -19,7 +19,7 @@ enum Light_Type {
 
 class Light {
 public:
-    Light();
+    Light(Camera *camera);
     void ChangeDirLight(vec3 direction, vec3 ambient, vec3 diffuse, vec3 specular);
 
     void AddPointLight(vec3 position, vec3 ambient,
@@ -36,25 +36,11 @@ public:
 
     void Use(const mat4 &model);
 
-    void Triggle(Light_Type lightType);
-    bool dirLightInited, spotLightInited, pointLightInited;
-    bool dirLightEnable, spotLightEnable, pointLightEnable;
     Shader shader;
 
 private:
+    Camera *camera;
     vector<vec3> pointPositions;
-    static const string attribHeader;
-    static const vector<string> pointAttribs;
-};
-
-class LightHandler {
-public:
-    static Light* light;
-    static Light* getLight() {
-        if (light == nullptr)
-            light = new Light();
-        return light;
-    }
 };
 
 #endif //CG_PROJECT_LIGHT_H

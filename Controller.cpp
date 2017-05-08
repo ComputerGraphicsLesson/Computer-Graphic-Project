@@ -3,13 +3,13 @@
 //
 
 #include "Controller.h"
-#include "Definition.h"
+#include "GlobeValue.h"
 
 double Controller::lastX = WIDTH;
 double Controller::lastY = HEIGHT;
 bool Controller::firstMouse = true;
 bool Controller::keys[1024] = {false};
-bool Controller::skyboxEnable = false;
+bool Controller::skyboxEnable = true;
 bool Controller::modelEnable = false;
 bool Controller::spotLightEnable = false;
 bool Controller::pointLightEnable = false;
@@ -24,6 +24,18 @@ void Controller::KeyCallback(GLFWwindow* window, int key, int scancode, int acti
             keys[key] = true;
         else if (action == GLFW_RELEASE)
             keys[key] = false;
+    }
+    if (key == GLFW_KEY_T && action == GLFW_PRESS) {
+        skyboxEnable = !skyboxEnable;
+    }
+    if (key == GLFW_KEY_I && action == GLFW_PRESS) {
+        spotLightEnable = !spotLightEnable;
+    }
+    if (key == GLFW_KEY_O && action == GLFW_PRESS) {
+        dirLightEnable = !dirLightEnable;
+    }
+    if (key == GLFW_KEY_P && action == GLFW_PRESS) {
+        pointLightEnable = !pointLightEnable;
     }
 }
 

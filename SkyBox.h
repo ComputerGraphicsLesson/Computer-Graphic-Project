@@ -9,17 +9,14 @@
 #include "Camera.h"
 #include "CubemapTexture.h"
 #include "Shader.h"
-#include "Definition.h"
+#include "GlobeValue.h"
 #include "Mesh.h"
 #include "Model.h"
 
 class SkyBox {
 public:
     SkyBox(Camera* camera, Model *model, const vector<string> texturesPath);
-
-    void Draw(Shader &shader);
-
-private:
+    void Render(Shader &shader);
     Camera* camera;
     Model* model;
     CubemapTexture cubemapTex;

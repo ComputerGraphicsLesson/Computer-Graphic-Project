@@ -7,17 +7,16 @@ set(SOURCE_FILES
         Headers.h main.cpp
         Shader.cpp Shader.h
         Camera.cpp Camera.h
-        Definition.h Definition.cpp
-        auxiliary.cpp auxiliary.h
+        GlobeValue.h GlobeValue.cpp
         Mesh.cpp Mesh.h
         Light.cpp Light.h
         Controller.cpp Controller.h
         Texture.cpp Texture.h
-        Path.cpp Path.h
+        Definition.cpp Definition.h
         Model.cpp Model.h
         CubemapTexture.cpp
         CubemapTexture.h
-        SkyBox.cpp SkyBox.h)
+        SkyBox.cpp SkyBox.h ScreenFBO.cpp ScreenFBO.h Shadow.cpp Shadow.h)
 
 add_executable(CG_Project ${SOURCE_FILES})
 

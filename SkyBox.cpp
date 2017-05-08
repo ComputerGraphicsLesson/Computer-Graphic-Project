@@ -9,7 +9,7 @@ SkyBox::SkyBox(Camera* camera, Model *model, const vector<string> texturesPath) 
         this->model = model;
 }
 
-void SkyBox::Draw(Shader &shader) {
+void SkyBox::Render(Shader &shader) {
     glDepthMask(GL_FALSE);
 
     shader.Use();
@@ -22,7 +22,7 @@ void SkyBox::Draw(Shader &shader) {
     // Bind Texture
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(glGetUniformLocation(shader.Program, "skybox"), 0);
-    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTex.textureId);
+    glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTex.id);
     model->Draw(shader);
 
     glDepthMask(GL_TRUE);

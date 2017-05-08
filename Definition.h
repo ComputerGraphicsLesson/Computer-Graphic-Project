@@ -1,33 +1,17 @@
 //
-// Created by hao on 4/22/17.
+// Created by hao on 4/24/17.
 //
 
-#ifndef CG_PROJECT_DEFINATION_H
-#define CG_PROJECT_DEFINATION_H
+#ifndef CHINESE_CHESS_PATH_H
+#define CHINESE_CHESS_PATH_H
 
 #include "Headers.h"
-#include "Camera.h"
-#include "Shader.h"
-#include "Light.h"
 
-// Window Size
-extern const GLuint WIDTH;
-extern const GLuint HEIGHT;
-// Perspective
-extern const GLfloat FAR;
-extern const GLfloat NEAR;
-// Mouse Position
-extern double lastX, lastY;
-// Main camera
-extern bool skyboxEnable;
-extern bool modelEnable;
-// Key pressed state
-extern bool keys[1024];
-// Cube demo
-extern const GLfloat cube[576];
-extern glm::vec3 cubePositions[];
-extern glm::vec3 cubeScales[];
+#define WIDTH 800
+#define HEIGHT 600
+#define FAR 0.1f
+#define NEAR 1000.f
 
-extern Camera *mainCamera;
+extern const vector<string> skyBoxPath;
 
-#endif //CG_PROJECT_DEFINATION_H
+#endif //CHINESE_CHESS_PATH_H
