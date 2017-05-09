@@ -82,7 +82,7 @@ int main() {
     Shader blinnShader("Shaders/blinn-phong.vs", "Shaders/blinn-phong.frag");
     // Screen Feature Shader
     Shader screenShader("Shaders/advanceLightWithShadow.vs", "Shaders/advanceLightWithShadow.frag");
-    Shader normalShader("Shaders/screen.vs", "Shaders/screenDepth.frag");
+    Shader normalShader("Shaders/screen.vs", "Shaders/screenHDR.frag");
     // Shadow Shader
     Shader shadowShader("Shaders/shadow.vs", "Shaders/shadow.frag");
     // Shadow
@@ -129,6 +129,8 @@ int main() {
 
         shadow.Finish();
 
+        screenFBO.Record();
+
         screenShader.Use();
 
         projection = glm::perspective(mainCamera->Zoom, (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
@@ -158,12 +160,18 @@ int main() {
         glDrawArrays(GL_TRIANGLES, 0, 36);
         glBindVertexArray(0);
 
-//        normalShader.Use();
-//        glBindVertexArray(screenVAO);
-//        glBindTexture(GL_TEXTURE_2D, shadow.shadowTex);
-//        glDrawArrays(GL_TRIANGLES, 0, 6);
-//        glBindVertexArray(0);
-        // Swap the screen buffers
+        screenFBO.Finish();
+
+        normalShader.Use();
+        glBindVertexArray(screenVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, screenFBO.texColorBuffer);
+        glUniform1i(glGetUniformLocation(normalShader.Program, "screenTexture"), 0);
+        glUniform1f(glGetUniformLocation(normalShader.Program, "exposure"), 2.0f);
+
+        glDrawArrays(GL_TRIANGLES, 0, 6);
+        glBindVertexArray(0);
+//         Swap the screen buffers
         glfwSwapBuffers(window);
     }
 

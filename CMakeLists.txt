@@ -16,7 +16,7 @@ set(SOURCE_FILES
         Model.cpp Model.h
         CubemapTexture.cpp
         CubemapTexture.h
-        SkyBox.cpp SkyBox.h ScreenFBO.cpp ScreenFBO.h Shadow.cpp Shadow.h)
+        SkyBox.cpp SkyBox.h ScreenFBO.cpp ScreenFBO.h Shadow.cpp Shadow.h GBuffer.cpp GBuffer.h)
 
 add_executable(CG_Project ${SOURCE_FILES})
 
