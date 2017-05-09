@@ -3,34 +3,41 @@
 //
 
 #include "Shadow.h"
+#include "Definition.h"
 
-Shadow::Shadow(unsigned int width, unsigned int height) {
+Shadow::Shadow(unsigned int width, unsigned int height)
+        :  shadowWidth(width), shadowHeight(height) {
     // Create the FBO
     glGenFramebuffers(1, &fbo);
 
-    // Create the depth buffer
+    // Create the Texture
     glGenTextures(1, &shadowTex);
     glBindTexture(GL_TEXTURE_2D, shadowTex);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
+    // Bind to Buffer
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, shadowTex, 0);
-
-    // Disable writes to the color buffer
     glDrawBuffer(GL_NONE);
     glReadBuffer(GL_NONE);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Shadow::BindForWriting() {
-    glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+void Shadow::Record(Shader &shadowShader, mat4 lightSpaceMatrix) {
+    shadowShader.Use();
+    glUniformMatrix4fv(glGetUniformLocation(shadowShader.Program, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+    // Set view
+    glViewport(0, 0, shadowWidth, shadowHeight);
+    glBindFramebuffer(GL_FRAMEBUFFER, fbo);
+    glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-void Shadow::BindForReading(GLenum TextureUnit) {
-    glActiveTexture(TextureUnit);
-    glBindTexture(GL_TEXTURE_2D, shadowTex);
+void Shadow::Finish() {
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    // Reset viewport
+    glViewport(0, 0, WIDTH, HEIGHT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 }

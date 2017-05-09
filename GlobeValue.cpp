@@ -50,7 +50,7 @@ const GLfloat cube[576] = {
         -0.5f, 0.5f, -0.5f,  0.0f,  1.0f,  0.0f, 0.0f, 1.0f
 };
 
-glm::vec3 cubePositions[] = {
+glm::vec3 cubePositions[16] = {
         glm::vec3(17.5f, 7.5f, 17.5f),
         glm::vec3(17.5f, 7.5f, -17.5f),
         glm::vec3(-17.5f, 7.5f, 17.5f),
@@ -67,7 +67,7 @@ glm::vec3 cubePositions[] = {
         glm::vec3(0.0f,  5.0f, -40.0f)
 };
 
-glm::vec3 cubeScales[] = {
+glm::vec3 cubeScales[16] = {
         glm::vec3(15.0f,  15.0f, 15.0f),
         glm::vec3(15.0f,  15.0f, 15.0f),
         glm::vec3(15.0f,  15.0f, 15.0f),
@@ -82,4 +82,26 @@ glm::vec3 cubeScales[] = {
         glm::vec3(10.0f,  10.0f, 2.0f),
         glm::vec3(2.0f,  10.0f, 10.0f),
         glm::vec3(2.0f,  10.0f, 10.0f)
+};
+
+GLfloat quadVertices[24] = {   // Vertex attributes for a quad that fills the entire screen in Normalized Device Coordinates.
+        // Positions   // TexCoords
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        -1.0f, -1.0f,  0.0f, 0.0f,
+        1.0f, -1.0f,  1.0f, 0.0f,
+
+        -1.0f,  1.0f,  0.0f, 1.0f,
+        1.0f, -1.0f,  1.0f, 0.0f,
+        1.0f,  1.0f,  1.0f, 1.0f
+};
+
+GLfloat planeVertices[48] = {
+        // Positions          // Normals         // Texture Coords
+        8.0f, -0.5f,  8.0f,  0.0f, 1.0f, 0.0f,  5.0f, 0.0f,
+        -8.0f, -0.5f,  8.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f,
+        -8.0f, -0.5f, -8.0f,  0.0f, 1.0f, 0.0f,  0.0f, 5.0f,
+
+        8.0f, -0.5f,  8.0f,  0.0f, 1.0f, 0.0f,  5.0f, 0.0f,
+        -8.0f, -0.5f, -8.0f,  0.0f, 1.0f, 0.0f,  0.0f, 5.0f,
+        8.0f, -0.5f, -8.0f,  0.0f, 1.0f, 0.0f,  5.0f, 5.0f
 };

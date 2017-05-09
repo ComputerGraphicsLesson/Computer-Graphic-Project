@@ -6,18 +6,19 @@
 #define CG_PROJECT_SHADERFBO_H
 
 #include "Headers.h"
+#include "Shader.h"
 
 class Shadow {
 public:
     Shadow(unsigned int width, unsigned int height);
 
-    void BindForWriting();
+    void Record(Shader &shadowShader, mat4 lightSpaceMatrix);
 
-    void BindForReading(GLenum TextureUnit);
+    void Finish();
 
-private:
     GLuint fbo;
     GLuint shadowTex;
+    unsigned int shadowWidth, shadowHeight;
 };
 
 
