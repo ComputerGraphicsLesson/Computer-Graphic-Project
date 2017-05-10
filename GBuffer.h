@@ -15,7 +15,7 @@ public:
     void Record();
     void Finish();
     GLuint gBuffer;
-    GLuint gPosition, gNormal, gAlbedoSpec;
+    GLuint gPositionDepth, gNormal, gAlbedo;
 
 };
 
