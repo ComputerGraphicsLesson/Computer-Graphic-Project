@@ -12,7 +12,7 @@ class Shadow {
 public:
     Shadow(unsigned int width, unsigned int height);
 
-    void Record(Shader &shadowShader, mat4 lightSpaceMatrix);
+    void Record();
 
     void Finish();
 

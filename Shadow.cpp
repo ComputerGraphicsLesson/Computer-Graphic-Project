@@ -26,9 +26,7 @@ Shadow::Shadow(unsigned int width, unsigned int height)
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void Shadow::Record(Shader &shadowShader, mat4 lightSpaceMatrix) {
-    shadowShader.Use();
-    glUniformMatrix4fv(glGetUniformLocation(shadowShader.Program, "lightSpaceMatrix"), 1, GL_FALSE, glm::value_ptr(lightSpaceMatrix));
+void Shadow::Record() {
     // Set view
     glViewport(0, 0, shadowWidth, shadowHeight);
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
