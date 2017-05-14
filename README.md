@@ -31,7 +31,7 @@ Complex Lighting
 
 Particle System
 
-Display Text
+**Display Text**
 
 Display list
 
@@ -52,13 +52,14 @@ Fluid Simulation
 Build
 -------------
 
-You should install **GLEW** **GLFW3** **SOIL** **ASSIMP** first.
+You should install **GLEW** **GLFW3** **SOIL** **ASSIMP**  **Freetype** first.
 Here are the link:
 
 >- [GLEW][1]
 >- [GLFW3][2]
 >- [SOIL][3]
 >- [ASSIMP][4]
+>- [Freetype][7]
 
 Then in the Computer-Graphic-Project folder
 
@@ -84,3 +85,4 @@ Run
 [4]: http://assimp.sourceforge.net/
 [5]: https://learnopengl.com/
 [6]: http://learnopengl-cn.readthedocs.io/zh/latest/
+[7]: https://www.freetype.org/index.html

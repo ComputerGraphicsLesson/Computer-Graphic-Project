@@ -6,10 +6,11 @@
 #define CG_PROJECT_HEADER_H
 
 #include <iostream>
-#include <string>
 #include <fstream>
 #include <sstream>
+#include <string>
 #include <vector>
+#include <map>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -23,6 +24,9 @@
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
+
+#include <freetype2/ft2build.h>
+#include FT_FREETYPE_H
 
 using namespace std;
 using namespace glm;
